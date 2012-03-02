@@ -23,6 +23,7 @@
 GLdouble viewX, viewY, viewZ;             /* view point */
 
 GLUquadricObj *theQuadric;
+GLUnurbs *theNurb;
 
 void DrawScene(){
 	// Replace with your code to draw the torus
@@ -73,6 +74,11 @@ void InitInterfaceDefaults(void){
 
 void MyInit(void){
 	theQuadric = gluNewQuadric();
+
+    theNurb = gluNewNurbsRenderer();
+    gluNurbsProperty(theNurb, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
+    gluNurbsProperty(theNurb, GLU_U_STEP, 15);
+    gluNurbsProperty(theNurb, GLU_V_STEP, 15);
 }
 
 

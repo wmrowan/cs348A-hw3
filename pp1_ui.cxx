@@ -18,10 +18,14 @@ MainCanvas *canvas=(MainCanvas *)0;
 
 CameraPositionCanvas *canvas2=(CameraPositionCanvas *)0;
 
+Fl_Value_Slider *TorusParamRSlider=(Fl_Value_Slider *)0;
+
+Fl_Value_Slider *TorusParamrSlider=(Fl_Value_Slider *)0;
+
 Fl_Double_Window* create_the_forms() {
   { assgn1_ui = new Fl_Double_Window(870, 800, "assgn1_ui");
     assgn1_ui->box(FL_NO_BOX);
-    { Fl_Box* o = new Fl_Box(0, 0, 870, 800);
+    { Fl_Box* o = new Fl_Box(-10, 0, 880, 825, "R");
       o->box(FL_UP_BOX);
       o->labelcolor(FL_BLACK);
     } // Fl_Box* o
@@ -95,6 +99,24 @@ Fl_Double_Window* create_the_forms() {
       canvas2->align(Fl_Align(FL_ALIGN_CENTER));
       canvas2->when(FL_WHEN_RELEASE);
     } // CameraPositionCanvas* canvas2
+    { TorusParamRSlider = new Fl_Value_Slider(420, 690, 400, 20, "R");
+      TorusParamRSlider->type(1);
+      TorusParamRSlider->color((Fl_Color)186);
+      TorusParamRSlider->labelcolor(FL_BLACK);
+      TorusParamRSlider->maximum(10);
+      TorusParamRSlider->step(0.1);
+      TorusParamRSlider->callback((Fl_Callback*)TorusParamRCallback, (void*)(0));
+      TorusParamRSlider->align(Fl_Align(FL_ALIGN_LEFT));
+    } // Fl_Value_Slider* TorusParamRSlider
+    { TorusParamrSlider = new Fl_Value_Slider(420, 720, 400, 20, "r");
+      TorusParamrSlider->type(1);
+      TorusParamrSlider->color((Fl_Color)161);
+      TorusParamrSlider->labelcolor(FL_BLACK);
+      TorusParamrSlider->maximum(10);
+      TorusParamrSlider->step(0.1);
+      TorusParamrSlider->callback((Fl_Callback*)TorusParamrCallback, (void*)(0));
+      TorusParamrSlider->align(Fl_Align(FL_ALIGN_LEFT));
+    } // Fl_Value_Slider* TorusParamrSlider
     assgn1_ui->end();
   } // Fl_Double_Window* assgn1_ui
   return assgn1_ui;

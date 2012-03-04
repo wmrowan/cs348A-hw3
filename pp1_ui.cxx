@@ -22,14 +22,16 @@ Fl_Value_Slider *TorusParamRSlider=(Fl_Value_Slider *)0;
 
 Fl_Value_Slider *TorusParamrSlider=(Fl_Value_Slider *)0;
 
+Fl_Value_Slider *TorusParamMSlider=(Fl_Value_Slider *)0;
+
 Fl_Double_Window* create_the_forms() {
-  { assgn1_ui = new Fl_Double_Window(870, 800, "assgn1_ui");
+  { assgn1_ui = new Fl_Double_Window(870, 810, "assgn1_ui");
     assgn1_ui->box(FL_NO_BOX);
     { Fl_Box* o = new Fl_Box(-10, 0, 880, 825, "R");
       o->box(FL_UP_BOX);
       o->labelcolor(FL_BLACK);
     } // Fl_Box* o
-    { ExitButton = new Fl_Button(770, 770, 80, 20, "Exit");
+    { ExitButton = new Fl_Button(770, 780, 80, 20, "Exit");
       ExitButton->box(FL_SHADOW_BOX);
       ExitButton->labelfont(1);
       ExitButton->callback((Fl_Callback*)QuitProgram, (void*)(0));
@@ -103,7 +105,8 @@ Fl_Double_Window* create_the_forms() {
       TorusParamRSlider->type(1);
       TorusParamRSlider->color((Fl_Color)186);
       TorusParamRSlider->labelcolor(FL_BLACK);
-      TorusParamRSlider->maximum(10);
+      TorusParamRSlider->minimum(-5);
+      TorusParamRSlider->maximum(5);
       TorusParamRSlider->step(0.1);
       TorusParamRSlider->callback((Fl_Callback*)TorusParamRCallback, (void*)(0));
       TorusParamRSlider->align(Fl_Align(FL_ALIGN_LEFT));
@@ -112,11 +115,22 @@ Fl_Double_Window* create_the_forms() {
       TorusParamrSlider->type(1);
       TorusParamrSlider->color((Fl_Color)161);
       TorusParamrSlider->labelcolor(FL_BLACK);
-      TorusParamrSlider->maximum(10);
+      TorusParamrSlider->minimum(-5);
+      TorusParamrSlider->maximum(5);
       TorusParamrSlider->step(0.1);
       TorusParamrSlider->callback((Fl_Callback*)TorusParamrCallback, (void*)(0));
       TorusParamrSlider->align(Fl_Align(FL_ALIGN_LEFT));
     } // Fl_Value_Slider* TorusParamrSlider
+    { TorusParamMSlider = new Fl_Value_Slider(420, 750, 400, 20, "m");
+      TorusParamMSlider->type(1);
+      TorusParamMSlider->color((Fl_Color)139);
+      TorusParamMSlider->labelcolor(FL_BLACK);
+      TorusParamMSlider->minimum(-5);
+      TorusParamMSlider->maximum(5);
+      TorusParamMSlider->step(0.1);
+      TorusParamMSlider->callback((Fl_Callback*)TorusParamMCallback, (void*)(0));
+      TorusParamMSlider->align(Fl_Align(FL_ALIGN_LEFT));
+    } // Fl_Value_Slider* TorusParamMSlider
     assgn1_ui->end();
   } // Fl_Double_Window* assgn1_ui
   return assgn1_ui;

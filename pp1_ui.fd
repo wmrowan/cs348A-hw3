@@ -25,11 +25,11 @@ class CameraPositionCanvas {open : {public Fl_Gl_Window}
   } {}
 } 
 
-Function {create_the_forms()} {open selected
+Function {create_the_forms()} {open
 } {
   Fl_Window assgn1_ui {
     label assgn1_ui open
-    xywh {320 53 870 800} type Double box NO_BOX visible
+    xywh {320 53 870 810} type Double box NO_BOX visible
   } {
     Fl_Box {} {
       label R user_data_type long
@@ -39,7 +39,7 @@ Function {create_the_forms()} {open selected
       label Exit
       user_data 0 user_data_type long
       callback QuitProgram
-      xywh {770 770 80 20} box SHADOW_BOX labelfont 1
+      xywh {770 780 80 20} box SHADOW_BOX labelfont 1
     }
     Fl_Button All {user_data_type long
       xywh {0 0 0 0} box NO_BOX color 1027423549 selection_color 1027423549 labelcolor 56
@@ -87,13 +87,19 @@ Function {create_the_forms()} {open selected
       label R
       user_data 0 user_data_type long
       callback TorusParamRCallback
-      xywh {420 690 400 20} type Horizontal color 186 labelcolor 56 align 4 maximum 10 step 0.1
+      xywh {420 690 400 20} type Horizontal color 186 labelcolor 56 align 4 minimum -5 maximum 5 step 0.1
     }
     Fl_Value_Slider TorusParamrSlider {
       label r
       user_data 0 user_data_type long
       callback TorusParamrCallback
-      xywh {420 720 400 20} type Horizontal color 161 labelcolor 56 align 4 maximum 10 step 0.1
+      xywh {420 720 400 20} type Horizontal color 161 labelcolor 56 align 4 minimum -5 maximum 5 step 0.1
+    }
+    Fl_Value_Slider TorusParamMSlider {
+      label m
+      user_data 0 user_data_type long
+      callback TorusParamMCallback selected
+      xywh {420 750 400 20} type Horizontal color 139 labelcolor 56 align 4 minimum -5 maximum 5 step 0.1
     }
   }
 } 

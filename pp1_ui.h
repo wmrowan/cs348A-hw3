@@ -38,5 +38,7 @@ extern void TorusParamRCallback(Fl_Value_Slider*, long);
 extern Fl_Value_Slider *TorusParamRSlider;
 extern void TorusParamrCallback(Fl_Value_Slider*, long);
 extern Fl_Value_Slider *TorusParamrSlider;
+extern void TorusParamMCallback(Fl_Value_Slider*, long);
+extern Fl_Value_Slider *TorusParamMSlider;
 Fl_Double_Window* create_the_forms();
 #endif

@@ -30,12 +30,11 @@ public:
         gluNurbsProperty(theNurb, GLU_U_STEP, 15);
         gluNurbsProperty(theNurb, GLU_V_STEP, 15);
 
-        //gluNurbsProperty(theNurb, GLU_DISPLAY_MODE, GLU_OUTLINE_POLYGON);
-
         gluNurbsCallback(theNurb, GLU_ERROR, (_GLUfuncptr)nurbsError);
 
         R = 1;
         r = 0.5;
+        m = 0.0;
 
         initLimits();
         calcCtrlPts();
@@ -71,6 +70,13 @@ public:
         canvas2->redraw();
     }
 
+    void setM(GLdouble val) {
+        m = val;
+        calcCtrlPts();
+        canvas->redraw();
+        canvas2->redraw();
+    }
+
 private:
     static void nurbsError(GLenum err) {
         printf("Nurbs error: %s\n", gluErrorString(err));
@@ -100,7 +106,7 @@ private:
             }
         }
 
-        printLimits();
+        //printLimits();
     }
 
     void calcCtrlPts() {
@@ -110,7 +116,7 @@ private:
             }
         }
 
-        printCtrlPts();
+        //printCtrlPts();
     }
 
     void printLimits() {
@@ -153,7 +159,7 @@ private:
     }
 
     GLfloat T2(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
-        return p1*p2*s2*t1;
+        return p1*p2*s2*t2;
     }
 
     GLfloat t1qq(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
@@ -169,7 +175,7 @@ private:
     }
 
     GLfloat Q2(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
-        return s1*s2*p2*q1;
+        return s1*s2*p2*q2;
     }
 
     GLfloat q1tt(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
@@ -208,14 +214,22 @@ private:
         GLfloat t2 = limits[u][v][6];
         GLfloat s2 = limits[u][v][7];
 
-        p[0] = x(q1,p1,q2,p2,t1,s1,t2,s2);
-        p[1] = y(q1,p1,q2,p2,t1,s1,t2,s2);
-        p[2] = z(q1,p1,q2,p2,t1,s1,t2,s2);
-        p[3] = w(q1,p1,q2,p2,t1,s1,t2,s2);
+        if(u == v && v == 1) {
+            p[0] = m;
+            p[1] = 0;
+            p[2] = m*R;
+            p[3] = m*r;
+        } else {
+            p[0] = x(q1,p1,q2,p2,t1,s1,t2,s2);
+            p[1] = y(q1,p1,q2,p2,t1,s1,t2,s2);
+            p[2] = z(q1,p1,q2,p2,t1,s1,t2,s2);
+            p[3] = w(q1,p1,q2,p2,t1,s1,t2,s2);
+        }
     }
      
     GLfloat R;
     GLfloat r;
+    GLfloat m;
 
     GLUnurbs *theNurb;
     GLfloat limits[3][3][8];
@@ -257,6 +271,10 @@ void TorusParamRCallback(Fl_Value_Slider *ob, long data) {
 
 void TorusParamrCallback(Fl_Value_Slider *ob, long data) {
     torus.setr(ob->value());
+}
+
+void TorusParamMCallback(Fl_Value_Slider *ob, long data) {
+    torus.setM(ob->value());
 }
 
 // Callback for the button that controls the exit of the program

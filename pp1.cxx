@@ -30,7 +30,7 @@ public:
         gluNurbsProperty(theNurb, GLU_U_STEP, 15);
         gluNurbsProperty(theNurb, GLU_V_STEP, 15);
 
-        gluNurbsProperty(theNurb, GLU_DISPLAY_MODE, GLU_OUTLINE_POLYGON);
+        //gluNurbsProperty(theNurb, GLU_DISPLAY_MODE, GLU_OUTLINE_POLYGON);
 
         gluNurbsCallback(theNurb, GLU_ERROR, (_GLUfuncptr)nurbsError);
 
@@ -44,23 +44,17 @@ public:
         memcpy(knots, KNOTS, sizeof(KNOTS));
     }
 
-    void printCtrlPts() {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < 3; ++j) {
-                printf("[%f; %f, %f, %f] ", ctrlpoints[i][j][3], ctrlpoints[i][j][0], ctrlpoints[i][j][1], ctrlpoints[i][j][2]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-    }
-
+    
     void draw() {
-        gluBeginSurface(theNurb);
-        gluNurbsSurface(theNurb,
-                        6, knots, 6, knots,
-                        3*4,4, &ctrlpoints[0][0][0],
-                        3,3, GL_MAP2_VERTEX_4);
-        gluEndSurface(theNurb);
+        glPushMatrix();
+            quarterSurface();
+            glRotatef(180., 0,1,0);
+            quarterSurface();
+            glRotatef(180., 1,0,0);
+            quarterSurface();
+            glRotatef(180., 0,1,0);
+            quarterSurface();
+        glPopMatrix();
     }
 
     void setR(GLdouble val) {
@@ -82,20 +76,31 @@ private:
         printf("Nurbs error: %s\n", gluErrorString(err));
     };
 
+    void quarterSurface() {
+        gluBeginSurface(theNurb);
+            gluNurbsSurface(theNurb,
+                            6, knots, 6, knots,
+                            3*4,4, &ctrlpoints[0][0][0],
+                            3,3, GL_MAP2_VERTEX_4);
+        gluEndSurface(theNurb);
+    }
+
     void initLimits() {
         for(int u = 0; u < 3; u++) {
             for(int v = 0; v < 3; v++) {
-                if(u < 2){limits[u][v][0] = 0;limits[u][v][1] = 1;}
-                else     {limits[u][v][0] = 1;limits[u][v][1] = 0;}
-                if(u < 1){limits[u][v][2] = 0;limits[u][v][3] = 1;}
-                else     {limits[u][v][2] = 1;limits[u][v][3] = 0;}
+                if(v < 2){limits[u][v][4] = 1;limits[u][v][5] = 0;}
+                else     {limits[u][v][4] = 0;limits[u][v][5] = 1;}
+                if(v < 1){limits[u][v][6] = 1;limits[u][v][7] = 0;}
+                else     {limits[u][v][6] = 0;limits[u][v][7] = 1;}
 
-                if(v < 2){limits[u][v][4] = 0;limits[u][v][5] = 1;}
-                else     {limits[u][v][4] = 1;limits[u][v][5] = 0;}
-                if(v < 1){limits[u][v][6] = 0;limits[u][v][7] = 1;}
-                else     {limits[u][v][6] = 1;limits[u][v][7] = 0;}
+                if(u < 2){limits[u][v][0] = 1;limits[u][v][1] = 0;}
+                else     {limits[u][v][0] = 0;limits[u][v][1] = 1;}
+                if(u < 1){limits[u][v][2] = 1;limits[u][v][3] = 0;}
+                else     {limits[u][v][2] = 0;limits[u][v][3] = 1;}
             }
         }
+
+        printLimits();
     }
 
     void calcCtrlPts() {
@@ -107,6 +112,28 @@ private:
 
         printCtrlPts();
     }
+
+    void printLimits() {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < 3; ++j) {
+                printf("[(%f; %f), (%f; %f), (%f; %f), (%f; %f)]\n", limits[i][j][0], limits[i][j][1], limits[i][j][2], limits[i][j][3],
+                                                                    limits[i][j][4], limits[i][j][5], limits[i][j][6], limits[i][j][7]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+
+    void printCtrlPts() {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < 3; ++j) {
+                printf("[%f; %f, %f, %f] ", ctrlpoints[i][j][3], ctrlpoints[i][j][0], ctrlpoints[i][j][1], ctrlpoints[i][j][2]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+
 
     // Don't ask
     GLfloat qq(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
@@ -156,7 +183,7 @@ private:
 
     // Really, please
     GLfloat x(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
-        return R*(1 + qq(q1,p1,q2,p2,t1,s1,t2,s2) - tt(q1,p1,q2,p2,t1,s1,t2,s2) - qqtt(q1,p1,q2,p2,t1,s1,t2,s2)) + r*(1 - tt(q1,p1,q2,p2,t1,s1,t2,s2) - qq(q1,p1,q2,p2,t1,s1,t2,s2) + qqtt(q1,p1,q2,p2,t1,s1,t2,s2));
+        return R*(p1*p2*s1*s2 + qq(q1,p1,q2,p2,t1,s1,t2,s2) - tt(q1,p1,q2,p2,t1,s1,t2,s2) - qqtt(q1,p1,q2,p2,t1,s1,t2,s2)) + r*(p1*p2*s1*s2 - tt(q1,p1,q2,p2,t1,s1,t2,s2) - qq(q1,p1,q2,p2,t1,s1,t2,s2) + qqtt(q1,p1,q2,p2,t1,s1,t2,s2));
     }
 
     GLfloat y(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
@@ -168,7 +195,7 @@ private:
     }
 
     GLfloat w(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
-        return 1 + qq(q1,p1,q2,p2,t1,s1,t2,s2) + tt(q1,p1,q2,p2,t1,s1,t2,s2) + qqtt(q1,p1,q2,p2,t1,s1,t2,s2);
+        return p1*p2*s1*s2 + qq(q1,p1,q2,p2,t1,s1,t2,s2) + tt(q1,p1,q2,p2,t1,s1,t2,s2) + qqtt(q1,p1,q2,p2,t1,s1,t2,s2);
     }
 
     void evalPt(int u, int v, GLfloat *p) {

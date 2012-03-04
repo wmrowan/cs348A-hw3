@@ -34,8 +34,8 @@ public:
 
         gluNurbsCallback(theNurb, GLU_ERROR, (_GLUfuncptr)nurbsError);
 
-        R = 2;
-        r = 1;
+        R = 1;
+        r = 0.5;
 
         initLimits();
         calcCtrlPts();

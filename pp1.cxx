@@ -20,7 +20,7 @@
 #define VIEW_Z_DEFAULT_MIN      -8.0      /* min and max values of z position */
 #define VIEW_Z_DEFAULT_MAX      8.0 
 
-GLfloat KNOTS[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0}; 
+GLfloat KNOTS[6] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0}; 
 
 class Torus {
 public:
@@ -29,6 +29,8 @@ public:
         gluNurbsProperty(theNurb, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
         gluNurbsProperty(theNurb, GLU_U_STEP, 15);
         gluNurbsProperty(theNurb, GLU_V_STEP, 15);
+
+        gluNurbsProperty(theNurb, GLU_DISPLAY_MODE, GLU_OUTLINE_POLYGON);
 
         gluNurbsCallback(theNurb, GLU_ERROR, (_GLUfuncptr)nurbsError);
 
@@ -44,9 +46,9 @@ public:
     void draw() {
         gluBeginSurface(theNurb);
         gluNurbsSurface(theNurb,
-                        8, knots, 8, knots,
-                        3*3,4, &ctrlpoints[0][0][0],
-                        4,4, GL_MAP2_VERTEX_4);
+                        6, knots, 6, knots,
+                        3*4,4, &ctrlpoints[0][0][0],
+                        3,3, GL_MAP2_VERTEX_4);
         gluEndSurface(theNurb);
     }
 

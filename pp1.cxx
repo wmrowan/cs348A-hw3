@@ -20,7 +20,7 @@
 #define VIEW_Z_DEFAULT_MIN      -8.0      /* min and max values of z position */
 #define VIEW_Z_DEFAULT_MAX      8.0 
 
-GLfloat KNOTS[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0}; 
+GLfloat KNOTS[6] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0}; 
 
 class Torus {
 public:
@@ -30,23 +30,36 @@ public:
         gluNurbsProperty(theNurb, GLU_U_STEP, 15);
         gluNurbsProperty(theNurb, GLU_V_STEP, 15);
 
+        gluNurbsProperty(theNurb, GLU_DISPLAY_MODE, GLU_OUTLINE_POLYGON);
+
         gluNurbsCallback(theNurb, GLU_ERROR, (_GLUfuncptr)nurbsError);
 
-        R = 0;
-        r = 0;
+        R = 2;
+        r = 1;
 
-        initLimits(0,1);
+        initLimits();
         calcCtrlPts();
 
+
         memcpy(knots, KNOTS, sizeof(KNOTS));
+    }
+
+    void printCtrlPts() {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < 3; ++j) {
+                printf("[%f; %f, %f, %f] ", ctrlpoints[i][j][3], ctrlpoints[i][j][0], ctrlpoints[i][j][1], ctrlpoints[i][j][2]);
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 
     void draw() {
         gluBeginSurface(theNurb);
         gluNurbsSurface(theNurb,
-                        8, knots, 8, knots,
-                        3*3,4, &ctrlpoints[0][0][0],
-                        4,4, GL_MAP2_VERTEX_4);
+                        6, knots, 6, knots,
+                        3*4,4, &ctrlpoints[0][0][0],
+                        3,3, GL_MAP2_VERTEX_4);
         gluEndSurface(theNurb);
     }
 
@@ -69,18 +82,18 @@ private:
         printf("Nurbs error: %s\n", gluErrorString(err));
     };
 
-    void initLimits(GLfloat low,GLfloat up) {
+    void initLimits() {
         for(int u = 0; u < 3; u++) {
             for(int v = 0; v < 3; v++) {
-                if(u < 2) limits[u][v][0] = low;
-                else      limits[u][v][0] = up;
-                if(u < 1) limits[u][v][1] = low;
-                else      limits[u][v][1] = up;
+                if(u < 2){limits[u][v][0] = 0;limits[u][v][1] = 1;}
+                else     {limits[u][v][0] = 1;limits[u][v][1] = 0;}
+                if(u < 1){limits[u][v][2] = 0;limits[u][v][3] = 1;}
+                else     {limits[u][v][2] = 1;limits[u][v][3] = 0;}
 
-                if(v < 2) limits[u][v][2] = low;
-                else      limits[u][v][2] = up;
-                if(v < 1) limits[u][v][3] = low;
-                else      limits[u][v][3] = up;
+                if(v < 2){limits[u][v][4] = 0;limits[u][v][5] = 1;}
+                else     {limits[u][v][4] = 1;limits[u][v][5] = 0;}
+                if(v < 1){limits[u][v][6] = 0;limits[u][v][7] = 1;}
+                else     {limits[u][v][6] = 1;limits[u][v][7] = 0;}
             }
         }
     }
@@ -91,43 +104,96 @@ private:
                 evalPt(u,v, &ctrlpoints[u][v][0]);
             }
         }
+
+        printCtrlPts();
     }
 
-    GLfloat x(GLfloat Q1, GLfloat Q2, GLfloat T1, GLfloat T2) {
-        return R*(1 + Q1*Q2 - T1*T2 - Q1*Q2*T1*T2) + r*(1 - T1*T2 - Q1*Q2 + T1*T2*Q1*Q2);
+    // Don't ask
+    GLfloat qq(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return s1*s2*q1*q2;
     }
 
-    GLfloat y(GLfloat Q1, GLfloat Q2, GLfloat T1, GLfloat T2) {
-        return R*(T1 + T2 + T1*Q1*Q2 + T2*Q1*Q2) + r*(T1 + T2 - T1*Q1*Q2 - T2*Q1*Q2);
+    GLfloat tt(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return p1*p2*t1*t2;
     }
 
-    GLfloat z(GLfloat Q1, GLfloat Q2, GLfloat T1, GLfloat T2) {
-        return r*(Q1 + Q2 + Q1*T1*T2 + Q2*T1*T2);
+    GLfloat qqtt(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return q1*q2*t1*t2;
     }
 
-    GLfloat w(GLfloat Q1, GLfloat Q2, GLfloat T1, GLfloat T2) {
-        return 1 + Q1*Q2 + T1*T2 + Q1*Q2*T1*T2;
+    GLfloat T1(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return p1*p2*s2*t1;
+    }
+
+    GLfloat T2(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return p1*p2*s2*t1;
+    }
+
+    GLfloat t1qq(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return s2*t1*q1*q2;
+    }
+
+    GLfloat t2qq(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return s1*t2*q1*q2;
+    }
+
+    GLfloat Q1(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return s1*s2*p2*q1;
+    }
+
+    GLfloat Q2(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return s1*s2*p2*q1;
+    }
+
+    GLfloat q1tt(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return p2*q1*t1*t2;
+    }
+
+    GLfloat q2tt(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return p1*q2*t1*t2;
+    }
+
+
+    // Really, please
+    GLfloat x(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return R*(1 + qq(q1,p1,q2,p2,t1,s1,t2,s2) - tt(q1,p1,q2,p2,t1,s1,t2,s2) - qqtt(q1,p1,q2,p2,t1,s1,t2,s2)) + r*(1 - tt(q1,p1,q2,p2,t1,s1,t2,s2) - qq(q1,p1,q2,p2,t1,s1,t2,s2) + qqtt(q1,p1,q2,p2,t1,s1,t2,s2));
+    }
+
+    GLfloat y(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return R*(T1(q1,p1,q2,p2,t1,s1,t2,s2) + T2(q1,p1,q2,p2,t1,s1,t2,s2) + t1qq(q1,p1,q2,p2,t1,s1,t2,s2) + t2qq(q1,p1,q2,p2,t1,s1,t2,s2)) + r*(T1(q1,p1,q2,p2,t1,s1,t2,s2) + T2(q1,p1,q2,p2,t1,s1,t2,s2) - t1qq(q1,p1,q2,p2,t1,s1,t2,s2) - t2qq(q1,p1,q2,p2,t1,s1,t2,s2));
+    }
+
+    GLfloat z(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return r*(Q1(q1,p1,q2,p2,t1,s1,t2,s2) + Q2(q1,p1,q2,p2,t1,s1,t2,s2) + q1tt(q1,p1,q2,p2,t1,s1,t2,s2) + q2tt(q1,p1,q2,p2,t1,s1,t2,s2));
+    }
+
+    GLfloat w(GLfloat q1, GLfloat p1, GLfloat q2, GLfloat p2, GLfloat t1, GLfloat s1, GLfloat t2, GLfloat s2) {
+        return 1 + qq(q1,p1,q2,p2,t1,s1,t2,s2) + tt(q1,p1,q2,p2,t1,s1,t2,s2) + qqtt(q1,p1,q2,p2,t1,s1,t2,s2);
     }
 
     void evalPt(int u, int v, GLfloat *p) {
-        GLfloat Q1 = limits[u][v][0];
-        GLfloat Q2 = limits[u][v][1];
-        GLfloat T1 = limits[u][v][2];
-        GLfloat T2 = limits[u][v][3];
+        GLfloat q1 = limits[u][v][0];
+        GLfloat p1 = limits[u][v][1];
+        GLfloat q2 = limits[u][v][2];
+        GLfloat p2 = limits[u][v][3];
+        GLfloat t1 = limits[u][v][4];
+        GLfloat s1 = limits[u][v][5];
+        GLfloat t2 = limits[u][v][6];
+        GLfloat s2 = limits[u][v][7];
 
-        p[0] = x(Q1,T1,Q2,T2);
-        p[1] = y(Q1,T1,Q2,T2);
-        p[2] = z(Q1,T1,Q2,T2);
-        p[3] = w(Q1,T1,Q2,T2);
+        p[0] = x(q1,p1,q2,p2,t1,s1,t2,s2);
+        p[1] = y(q1,p1,q2,p2,t1,s1,t2,s2);
+        p[2] = z(q1,p1,q2,p2,t1,s1,t2,s2);
+        p[3] = w(q1,p1,q2,p2,t1,s1,t2,s2);
     }
      
     GLfloat R;
     GLfloat r;
 
     GLUnurbs *theNurb;
-    GLfloat limits[3][3][4];
+    GLfloat limits[3][3][8];
     GLfloat ctrlpoints[3][3][4];
-    GLfloat knots[8];
+    GLfloat knots[6];
 };
 
 GLdouble viewX, viewY, viewZ;             /* view point */
